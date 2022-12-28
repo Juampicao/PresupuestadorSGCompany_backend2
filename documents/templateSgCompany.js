@@ -1,10 +1,17 @@
-const {
-  crearNumeroPresupuestoAleatorio,
-} = require("../helper/crearNumeroPresupuestoAleatorio");
-
-module.exports = ({ cliente, productosList, empresa, variables }) => {
+export const templateSgCompany = ({
+  cliente,
+  productosList,
+  empresa,
+  variables,
+}) => {
   // Cliente
-  const { nombreCliente, contactoCliente, direccionCliente } = cliente;
+  const {
+    nombreCliente,
+    contactoCliente,
+    direccionCliente,
+    descripcionPedido,
+    nombrePedido,
+  } = cliente;
 
   // Empresa
   const {
@@ -16,9 +23,54 @@ module.exports = ({ cliente, productosList, empresa, variables }) => {
   } = empresa;
 
   // Variables
-  const { validezPresupuesto, numeroPresupuesto, fechaPresupuesto } = variables;
+  const {
+    validezPresupuesto,
+    numeroPresupuesto,
+    fechaPresupuesto,
+    descuentoTotal,
+    tipoDescuento,
+  } = variables;
 
-  const today = new Date();
+  /**
+   * @returns Object {subtotal, descuento, precioFinal}
+   */
+  function returnPrecioFinal() {
+    let subTotal = productosList
+      .map(
+        (producto) =>
+          producto.costoUnitario * producto.cantidad * producto.coeficienteVenta
+      )
+      .reduce((prev, curr) => prev + curr, 0);
+
+    const descuento = subTotal * (descuentoTotal / 100);
+    const precioFinal = subTotal - descuento;
+
+    console.log(
+      "subTotal:",
+      subTotal,
+      "descuento",
+      descuento,
+      "precioFinal",
+      precioFinal
+    );
+
+    return { subTotal, descuento, precioFinal };
+  }
+
+  /**
+   *
+   * @returns date presupuesto
+   */
+  function getDate() {
+    const today = new Date();
+    if (fechaPresupuesto) {
+      return fechaPresupuesto;
+    } else {
+      return `${today.getDate()}. ${
+        today.getMonth() + 1
+      }. ${today.getFullYear()}.`;
+    }
+  }
 
   //* Crear numero al azar si no existe numero en el front.
   function crearNumeroPresupuestoAleatorio(min = 1000, max = 5000) {
@@ -28,16 +80,6 @@ module.exports = ({ cliente, productosList, empresa, variables }) => {
     console.log("el numero presupuesto=", numeroPresupuesto);
     return numeroPresupuestoAzar;
   }
-
-  // VIEJO PRODUCTO Precio
-
-  // $${
-  //                  precioUnitario !== 0
-  //                    ? precioUnitario
-  //                    : `${Number(
-  //                        producto.costoUnitario * producto.coeficienteVenta
-  //                      )}`
-  //                }
 
   return `
     <!doctype html>
@@ -98,14 +140,8 @@ module.exports = ({ cliente, productosList, empresa, variables }) => {
             </div>
 
             <div>
-               <p> Fecha: ${
-                 fechaPresupuesto
-                   ? fechaPresupuesto
-                   : `${today.getDate()}. ${
-                       today.getMonth() + 1
-                     }. ${today.getFullYear()}.`
-               }</p>
-             <p>Numero Presupuesto: ${
+               <p> Fecha: ${getDate()}</p>
+             <p><span>Numero Presupuesto:</span> ${
                numeroPresupuesto
                  ? numeroPresupuesto
                  : crearNumeroPresupuestoAleatorio()
@@ -143,14 +179,15 @@ module.exports = ({ cliente, productosList, empresa, variables }) => {
                    </div>
 
          </main>
-
+             <div>
+              <span>Descripcion del pedido:</span> ${descripcionPedido}
+             </div>
             <div class="divTabla">
             
             <table class="tabla">
              <thead>
                 <tr class="titulos">
-                   <td colspan="1">Materiales</td>
-                   <td colspan="2" >Descripcion</td>
+                   <td colspan="2">Materiales</td>
                    <td colspan="1">Cantidad</td>
                    <td colspan="1">Precio.U</td>
                    <td colspan="1">Precio Total</td>
@@ -163,22 +200,30 @@ module.exports = ({ cliente, productosList, empresa, variables }) => {
                      (producto) =>
                        `
                          <tr>
-                           <td colspan="1"> ${producto.nombreMaterial}</td>
-                           <td colspan="2"> ${producto.descripcion}.</td>
-
+                           <td colspan="2"> ${producto.nombreMaterial}</td>
                            <td colspan="1" class="center">
                              ${Number(producto.cantidad)}
                            </td>
                            <td colspan="1" class="center">
-                             
-                $${Number(producto.costoUnitario * producto.coeficienteVenta)}
+                             ${
+                               producto.monedaCotizar === "dolar"
+                                 ? "U$D"
+                                 : "AR$"
+                             }
+                              ${Number(
+                                producto.costoUnitario *
+                                  producto.coeficienteVenta
+                              )}
                            </td>
                            <td colspan="1" class="center">
-                             $${
-                               producto.cantidad *
+                          ${
+                            producto.monedaCotizar === "dolar" ? "U$D" : "AR$"
+                          }     
+                           ${Number(
+                             producto.cantidad *
                                producto.costoUnitario *
                                producto.coeficienteVenta
-                             }
+                           )}
                            </td>
                          </tr>
                    `
@@ -192,28 +237,32 @@ module.exports = ({ cliente, productosList, empresa, variables }) => {
              <section class="info">
              <h4> Validez</h4>
              ${` Presupuesto Valido por ${validezPresupuesto} dias.`}
-             <h4> Oberservaciones</h4>
+             <h4> Observaciones</h4>
              <p> ${observacionesParticulares}</p>
              <h4> Notas</h4>
              <p> ${aclaracionesGenerales}</p>
+             <p> ${
+               tipoDescuento
+                 ? `<p> <span> Motivo descuento: </span> ${tipoDescuento} </p>`
+                 : ""
+             }</p>
+
              </section>
              <br />
-             <h1 class="center">Precio Total:
-            ${
-              productosList
-                ? productosList
-                    .map(
-                      (producto) =>
-                        producto.costoUnitario *
-                        producto.cantidad *
-                        producto.coeficienteVenta
-                    )
-                    .reduce((prev, curr) => prev + curr, 0)
-                : ""
-            }
+             <h1 class="center">Sub-Total: U$D
+            ${productosList ? returnPrecioFinal().subTotal : ""}
              </h1>
+             <h1 class="center"> Descuento: U$D ${
+               returnPrecioFinal().descuento
+             }</h1>
+             <h1 class="center"> Precio Total: 
+               U$D ${returnPrecioFinal().precioFinal}
+             </h1>
+
           </div>
        </body>
     </html>
     `;
 };
+
+export default templateSgCompany;
