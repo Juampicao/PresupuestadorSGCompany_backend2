@@ -1,7 +1,7 @@
-import CustomLogger from "../helper/CustomLogger.js";
-import generarId from "../helper/generarId.js";
-import generarJWT from "../helper/generarJWT.js";
-import Usuario from "../models/Usuario.js";
+import CustomLogger from "../../helper/CustomLogger.js";
+import generarId from "../../helper/generarId.js";
+import generarJWT from "../../helper/generarJWT.js";
+import Usuario from "../../models/Usuario.js";
 
 const customLogger = new CustomLogger();
 

@@ -2,16 +2,23 @@ import mongoose from "mongoose";
 const PresupuestoSchema = mongoose.Schema(
   {
     cliente: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Cliente",
+      nombreCliente: "",
+      contactoCliente: "",
+      direccionCliente: "",
+      nombrePedido: "",
+      descripcionPedido: "",
     },
     empresa: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Empresa",
+      nombreEmpresa: "",
+      direccionEmpresa: "",
+      contactoEmpresa: "",
+      observacionesParticulares: "",
+      aclaracionesGenerales: "",
     },
     variables: {
-      numeroPresupuesto: { type: String },
-      fechaPresupuesto: { type: Date },
+      numeroPresupuesto: "",
+      numeroCotizacion: "",
+      fechaPresupuesto: "",
       validezPresupuesto: { type: Number },
       descuentoTotal: { type: Number },
       tipoDescuento: { type: String },

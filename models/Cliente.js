@@ -13,14 +13,27 @@ const ClienteSchema = mongoose.Schema(
       type: String,
       required: false,
     },
+    correoElectronico: {
+      type: String,
+      required: false,
+    },
+    fechaUltimaModificacion: {
+      type: Date,
+      required: true,
+    },
     pedidos: [
       {
-        _id: {
+        id: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "Pedido",
         },
       },
     ],
+    creador: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Usuario",
+      required: true,
+    },
   },
   {
     timestamps: true,

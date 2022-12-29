@@ -3,6 +3,7 @@ import { createPdf } from "../controllers/pdfController.js";
 
 const router = express.Router();
 
-router.route("/").post(createPdf);
+router.route("/create").post(createPdf);
+// router.route("/fetch").get(fetchPdf);
 
 export default router;
